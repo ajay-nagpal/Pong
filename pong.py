@@ -24,6 +24,23 @@ cpu.centery =screen_height//2
 player = pygame.Rect(0, 0, 20, 100)
 player.midright =(screen_width,screen_height//2)
 
+ball_speed_x=6
+ball_speed_y=6
+
+def animate_ball():
+    global ball_speed_x,ball_speed_y
+    
+    ball.x+=ball_speed_x
+    ball.y+=ball_speed_y
+
+    if ball.bottom>=screen_height or ball.top<=0:
+        #bounce it in opposite direction
+        ball_speed_y*=-1
+
+    if ball.right>=screen_width or ball.left<=0:
+        #bounce it in opposite direction
+        ball_speed_x*=-1
+
 while not exit_game:
     #1 event handling
     for event in pygame.event.get():
@@ -44,8 +61,10 @@ while not exit_game:
             elif event.key==pygame.K_UP:
                 pass
     
-    
+    animate_ball()
+        
     #3 drawing
+    #this willl stop traces of previous draw ball
     screen.fill(dark_grey_blue)
     
     pygame.draw.ellipse(screen,light_grey,ball)
