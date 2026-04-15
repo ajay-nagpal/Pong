@@ -28,9 +28,10 @@ ball_speed_x=6
 ball_speed_y=6
 
 player_paddle_speed=0
+cpu_paddle_speed=6
 
 def animate_ball():
-    global ball_speed_x,ball_speed_y
+    global ball_speed_x,ball_speed_y,player_paddle
 
     ball.x+=ball_speed_x
     ball.y+=ball_speed_y
@@ -42,6 +43,36 @@ def animate_ball():
     if ball.right>=screen_width or ball.left<=0:
         #bounce it in opposite direction
         ball_speed_x*=-1
+
+    #check ball collision with paddle
+    if ball.colliderect(player_paddle) or ball.colliderect(cpu_paddle):
+        #change balll direction horizontally
+        ball_speed_x*=-1
+
+
+def animate_player():
+    #global player_paddle
+    player_paddle.y+=player_paddle_speed
+
+    if player_paddle.top<=0:
+        player_paddle.top=0
+    if player_paddle.bottom>=screen_height:
+        player_paddle.bottom=screen_height
+
+def animate_cpu():
+     #manage cpy paddle direction based on ball center 
+    global cpu_paddle_speed
+
+    cpu_paddle.y+=cpu_paddle_speed
+    if ball.centery<=cpu_paddle.centery:
+        cpu_paddle_speed=-6
+    if ball.centery>=cpu_paddle.centery:
+        cpu_paddle_speed=6
+
+    if cpu_paddle.top<=0:
+        cpu_paddle.top=0
+    if cpu_paddle.bottom>=screen_height:
+        cpu_paddle.bottom=screen_height
 
 while not exit_game:
     #1 event handling
@@ -56,9 +87,9 @@ while not exit_game:
         if event.type==pygame.KEYDOWN:
             #move paddle
             if event.key==pygame.K_DOWN:
-                player_paddle_speed=5
+                player_paddle_speed=6
             elif event.key==pygame.K_UP:
-                player_paddle_speed=-5
+                player_paddle_speed=-6
         
         #key release
         if event.type==pygame.KEYUP:
@@ -69,12 +100,10 @@ while not exit_game:
                 player_paddle_speed=0
     
     animate_ball()
-    player_paddle.y+=player_paddle_speed
+    
+    animate_player()
 
-    if player_paddle.top<=0:
-        player_paddle.top=0
-    if player_paddle.bottom>=screen_height:
-        player_paddle.bottom=screen_height
+    animate_cpu()
         
     #3 drawing
     #this willl stop traces of previous draw ball
