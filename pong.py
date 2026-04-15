@@ -1,4 +1,4 @@
-import pygame,sys
+import pygame,sys,random
 
 pygame.init()
 
@@ -30,6 +30,30 @@ ball_speed_y=6
 player_paddle_speed=0
 cpu_paddle_speed=6
 
+cpu_points,player_points=0,0
+
+score_font=pygame.font.Font(None,70)#None=>use default font, 40 size
+
+def reset_ball():
+    ball.x=screen_width//2
+    ball.y=screen_height//2
+
+    #select ball direction randomly
+    global ball_speed_x,ball_speed_y
+
+    ball_speed_x*=random.choice([-1,1])
+    ball_speed_y*=random.choice([-1,1])
+
+def point_won(winner):
+    global cpu_points,player_points
+
+    if winner=="cpu":
+        cpu_points+=1
+    if winner=="player":
+        player_points+=1
+
+    reset_ball()
+
 def animate_ball():
     global ball_speed_x,ball_speed_y,player_paddle
 
@@ -40,15 +64,20 @@ def animate_ball():
         #bounce it in opposite direction
         ball_speed_y*=-1
 
-    if ball.right>=screen_width or ball.left<=0:
-        #bounce it in opposite direction
-        ball_speed_x*=-1
+    if ball.right>=screen_width:
+        #cpu wins point
+        point_won("cpu")
+        #bounce in random direction to start from fresh after miss
 
+    if ball.left<=0:
+        point_won("player")
+        #bounce in random direction to start from fresh after miss
+        #will do this in 
+        
     #check ball collision with paddle
     if ball.colliderect(player_paddle) or ball.colliderect(cpu_paddle):
         #change balll direction horizontally
         ball_speed_x*=-1
-
 
 def animate_player():
     #global player_paddle
@@ -82,7 +111,6 @@ while not exit_game:
             exit_game=True
             break
 
-    #2 update position
         #key press
         if event.type==pygame.KEYDOWN:
             #move paddle
@@ -105,10 +133,15 @@ while not exit_game:
 
     animate_cpu()
         
-    #3 drawing
     #this willl stop traces of previous draw ball
     screen.fill(dark_grey_blue)
-    
+
+    player_score_surface=score_font.render(str(player_points),True,light_grey)
+    cpu_score_surface=score_font.render(str(cpu_points),True,light_grey)
+
+    screen.blit(player_score_surface,(3*screen_width//4,20))
+    screen.blit(cpu_score_surface,(screen_width//4,20))
+
     pygame.draw.ellipse(screen,light_grey,ball)
     pygame.draw.rect(screen,light_grey,cpu_paddle)
     pygame.draw.rect(screen,light_grey,player_paddle)
@@ -118,8 +151,6 @@ while not exit_game:
     pygame.display.update()
     clock.tick(100)
         
-
 #quit pygame
 pygame.quit()
-
 sys.exit()
